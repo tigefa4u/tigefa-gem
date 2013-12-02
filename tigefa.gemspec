@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'tigefa'
   s.version     = '1.0.0'
-  s.date        = '03-12-2013'
+  s.date        = '2013-12-03'
   s.rubyforge_project = 'tigefa'
   s.summary     = "tigefa gem provide cloud command like dropbox upload, google drive upload"
   s.description = "tigefa gem provide cloud command like dropbox upload, google drive upload"
