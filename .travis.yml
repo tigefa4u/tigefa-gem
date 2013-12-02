@@ -13,9 +13,9 @@ notifications:
     on_success: change
     on_failure: change
     channels:
-      - "irc.freenode.org#jekyll"
-    #on_success: change
-    #on_failure: change
+      - "irc.freenode.org#tigefa"
+    on_success: change
+    on_failure: change
     template:
       - "%{repository}#%{build_number} (%{branch}) %{message} %{build_url}"
   email:
