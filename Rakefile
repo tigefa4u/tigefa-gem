@@ -6,6 +6,22 @@ require 'yaml'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), *%w[lib]))
 
+if RUBY_VERSION > '1.9' && ENV["TRAVIS"] == "true"
+  require 'coveralls/rake/task'
+  Coveralls::RakeTask.new
+
+  task :default => [:test, 'coveralls:push']
+else
+  task :default => ['test']
+end
+
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
+end
+
 # Packaging tasks
 
 task :release => :build do
