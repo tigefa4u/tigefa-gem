@@ -12,7 +12,11 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
   s.extra_rdoc_files = %w[README.md LICENSE]
   
+  s.add_runtime_dependency('dropbox')
+  s.add_runtime_dependency('google')
+  s.add_runtime_dependency('google_driver')
   s.add_runtime_dependency('google_drive')
+  s.add_runtime_dependency('google-api-client')
   
   s.add_development_dependency('coveralls')
   s.add_development_dependency('gemnasium')
