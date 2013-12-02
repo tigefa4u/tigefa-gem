@@ -11,5 +11,9 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/tigefa4u/tigefa-gem'
   s.license     = 'MIT'
   s.extra_rdoc_files = %w[README.md LICENSE]
+  
   s.add_runtime_dependency('google_drive')
+  
+  s.add_development_dependency('coveralls')
+  s.add_development_dependency('gemnasium')
 end
