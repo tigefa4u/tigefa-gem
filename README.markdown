@@ -1,11 +1,15 @@
-# Jekyll
+# Tigefa Gem
 
-[![Gem Version](https://badge.fury.io/rb/jekyll.png)](http://badge.fury.io/rb/jekyll)
+> This Generator site jekyll powered but command line changed from `jekyll new <site name>` replaced `tigefa new <site name>`
+> Hand from hand, eye from eye.
+>> Thanks for visiting.
 
-[![Build Status](https://secure.travis-ci.org/mojombo/jekyll.png?branch=master)](https://travis-ci.org/mojombo/jekyll)
-[![Code Climate](https://codeclimate.com/github/mojombo/jekyll.png)](https://codeclimate.com/github/mojombo/jekyll)
-[![Dependency Status](https://gemnasium.com/mojombo/jekyll.png)](https://gemnasium.com/mojombo/jekyll)
-[![Coverage Status](https://coveralls.io/repos/mojombo/jekyll/badge.png)](https://coveralls.io/r/mojombo/jekyll)
+[![Gem Version](https://badge.fury.io/rb/tigefa.png)](http://badge.fury.io/rb/tigefa)
+
+[![Build Status](https://secure.travis-ci.org/tigefa4u/tigefa-gem.png?branch=master)](https://travis-ci.org/tigefa4u/tigefa-gem)
+[![Code Climate](https://codeclimate.com/github/tigefa4u/tigefa-gem.png)](https://codeclimate.com/github/tigefa4u/tigefa-gem)
+[![Dependency Status](https://gemnasium.com/tigefa4u/tigefa-gem.png)](https://gemnasium.com/tigefa4u/tigefa-gem)
+[![Coverage Status](https://coveralls.io/repos/tigefa4u/tigefa-gem/badge.png)](https://coveralls.io/r/tigefa4u/tigefa-gem)
 
 By Tom Preston-Werner, Nick Quaranto, and many awesome contributors!
 
