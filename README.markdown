@@ -8,7 +8,6 @@
 
 [![Build Status](https://secure.travis-ci.org/tigefa4u/tigefa-gem.png?branch=master)](https://travis-ci.org/tigefa4u/tigefa-gem)
 [![Code Climate](https://codeclimate.com/github/tigefa4u/tigefa-gem.png)](https://codeclimate.com/github/tigefa4u/tigefa-gem)
-[![Dependency Status](https://gemnasium.com/tigefa4u/tigefa-gem.png)](https://gemnasium.com/tigefa4u/tigefa-gem)
 [![Coverage Status](https://coveralls.io/repos/tigefa4u/tigefa-gem/badge.png)](https://coveralls.io/r/tigefa4u/tigefa-gem)
 
 By Tom Preston-Werner, Nick Quaranto, and many awesome contributors!
