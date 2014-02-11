@@ -54,7 +54,7 @@ command :default do |c|
 end
 
 command :new do |c|
-  c.syntax = t new PATH'
+  c.syntax = tigefa new PATH'
   c.description = 'Creates a new tigefa site scaffold in PATH'
 
   c.option '--force', 'Force creation even if PATH already exists'
