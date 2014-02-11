@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = '1.3.5'
 
   s.name              = 'tigefa'
-  s.version           = '1.1.2'
+  s.version           = '1.1.1'
   s.license           = 'MIT'
   s.date              = '2014-02-03'
   s.rubyforge_project = 'tigefa'
