@@ -123,7 +123,7 @@ command :docs do |c|
 
   c.action do |args, options|
     options = normalize_options(options.__hash__)
-    options = Jekyll.configuration(options.merge!({
+    options = Tigefa.configuration(options.merge!({
       'source' => File.expand_path("../site", File.dirname(__FILE__)),
       'destination' => File.expand_path("../site/_site", File.dirname(__FILE__))
     }))
@@ -153,6 +153,6 @@ command :import do |c|
       msg += "* Please see the documentation at http://jekyllrb.com/docs/migrations/ for instructions.\n"
       abort msg
     end
-    Jekyll::Commands::Import.process(args.first, options)
+    Tigefa::Commands::Import.process(args.first, options)
   end
 end
