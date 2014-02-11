@@ -131,4 +131,4 @@ eos
   end
 end
 
-Liquid::Template.register_tag('include', Jekyll::Tags::IncludeTag)
+Liquid::Template.register_tag('include', Tigefa::Tags::IncludeTag)

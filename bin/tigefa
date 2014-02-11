@@ -6,7 +6,7 @@ $:.unshift File.join(File.dirname(__FILE__), *%w{ .. lib })
 require 'commander/import'
 require 'tigefa'
 
-Jekyll::Deprecator.process(ARGV)
+Tigefa::Deprecator.process(ARGV)
 
 program :name, 'tigefa'
 program :version, Tigefa::VERSION
@@ -48,20 +48,20 @@ command :default do |c|
     if args.empty?
       command(:help).run
     else
-      Jekyll.logger.abort_with "Invalid command. Use --help for more information"
+      Tigefa.logger.abort_with "Invalid command. Use --help for more information"
     end
   end
 end
 
 command :new do |c|
-  c.syntax = 'jekyll new PATH'
-  c.description = 'Creates a new Jekyll site scaffold in PATH'
+  c.syntax = tigefa new PATH'
+  c.description = 'Creates a new tigefa site scaffold in PATH'
 
   c.option '--force', 'Force creation even if PATH already exists'
   c.option '--blank', 'Creates scaffolding but with empty files'
 
   c.action do |args, options|
-    Jekyll::Commands::New.process(args, options.__hash__)
+    Tigefa::Commands::New.process(args, options.__hash__)
   end
 end
 
@@ -109,14 +109,14 @@ command :doctor do |c|
   c.action do |args, options|
     options = normalize_options(options.__hash__)
     options = Tigefa.configuration(options)
-    Jekyll::Commands::Doctor.process(options)
+    Tigefa::Commands::Doctor.process(options)
   end
 end
 alias_command :hyde, :doctor
 
 command :docs do |c|
   c.syntax = 'tigefa docs'
-  c.description = "Launch local server with docs for Jekyll v#{Jekyll::VERSION}"
+  c.description = "Launch local server with docs for Jekyll v#{Tigefa::VERSION}"
 
   c.option '-p', '--port [PORT]', 'Port to listen on'
   c.option '-u', '--host [HOST]', 'Host to bind to'

@@ -45,4 +45,4 @@ eos
   end
 end
 
-Liquid::Template.register_tag('gist', Jekyll::GistTag)
+Liquid::Template.register_tag('gist', Tigefa::GistTag)

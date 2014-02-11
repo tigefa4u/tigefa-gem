@@ -62,7 +62,7 @@ require_all 'tigefa/tags'
 
 SafeYAML::OPTIONS[:suppress_warnings] = true
 
-module Jekyll
+module Tigefa
   VERSION = '1.1.1'
 
   # Public: Generate a Jekyll configuration Hash by merging the default

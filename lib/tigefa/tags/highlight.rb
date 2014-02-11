@@ -82,4 +82,4 @@ eos
   end
 end
 
-Liquid::Template.register_tag('highlight', Jekyll::Tags::HighlightBlock)
+Liquid::Template.register_tag('highlight', Tigefa::Tags::HighlightBlock)
