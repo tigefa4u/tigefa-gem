@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-module Jekyll
+module Tigefa
   module Commands
     class Serve < Command
       def self.process(options)
@@ -18,12 +18,12 @@ module Jekyll
 
         s.mount(options['baseurl'], HTTPServlet::FileHandler, destination, fh_option)
 
-        Jekyll.logger.info "Server address:", "http://#{s.config[:BindAddress]}:#{s.config[:Port]}"
+        Tigefa.logger.info "Server address:", "http://#{s.config[:BindAddress]}:#{s.config[:Port]}"
 
         if options['detach'] # detach the server
           pid = Process.fork { s.start }
           Process.detach(pid)
-          Jekyll.logger.info "Server detatched with pid '#{pid}'.", "Run `kill -9 #{pid}' to stop the server."
+          Tigefa.logger.info "Server detatched with pid '#{pid}'.", "Run `kill -9 #{pid}' to stop the server."
         else # create a new server thread, then join it with current terminal
           t = Thread.new { s.start }
           trap("INT") { s.shutdown }
@@ -52,7 +52,7 @@ module Jekyll
 
       def self.start_callback(detached)
         unless detached
-          Proc.new { Jekyll.logger.info "Server running...", "press ctrl-c to stop." }
+          Proc.new { Tigefa.logger.info "Server running...", "press ctrl-c to stop." }
         end
       end
 

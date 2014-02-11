@@ -1,4 +1,4 @@
-module TigefaTigefa
+module Tigefa
   module Tags
     class PostComparer
       MATCHER = /^(.+\/)*(\d+-\d+-\d+)-(.*)$/
