@@ -1,7 +1,7 @@
 require 'uri'
 require 'json'
 
-module TigefaTigefa
+module Tigefa
   module Filters
     # Convert a Textile string into HTML output.
     #

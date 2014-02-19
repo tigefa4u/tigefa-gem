@@ -236,7 +236,7 @@ module Tigefa
     #
     # Returns an Array of related Posts.
     def related_posts(posts)
-      Jekyll::RelatedPosts.new(self).build
+      Tigefa::RelatedPosts.new(self).build
     end
 
     # Add any necessary layouts to this post.
@@ -299,7 +299,7 @@ module Tigefa
 
     def extract_excerpt
       if generate_excerpt?
-        Jekyll::Excerpt.new(self)
+        Tigefa::Excerpt.new(self)
       else
         ""
       end
