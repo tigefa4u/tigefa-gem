@@ -4,17 +4,17 @@ require 'helper'
 
 class TestTags < Test::Unit::TestCase
 
-  def create_post(content, override = {}, converter_class = Jekyll::Converters::Markdown)
-    stub(Jekyll).configuration do
-      Jekyll::Configuration::DEFAULTS.deep_merge({'pygments' => true}).deep_merge(override)
+  def create_post(content, override = {}, converter_class = Tigefa::Converters::Markdown)
+    stub(Tigefa).configuration do
+      Tigefa::Configuration::DEFAULTS.deep_merge({'pygments' => true}).deep_merge(override)
     end
-    site = Site.new(Jekyll.configuration)
+    site = Site.new(Tigefa.configuration)
 
     if override['read_posts']
       site.read_posts('')
     end
 
-    info = { :filters => [Jekyll::Filters], :registers => { :site => site } }
+    info = { :filters => [Tigefa::Filters], :registers => { :site => site } }
     @converter = site.converters.find { |c| c.class == converter_class }
     payload = { "pygments_prefix" => @converter.pygments_prefix,
                 "pygments_suffix" => @converter.pygments_suffix }
@@ -39,7 +39,7 @@ CONTENT
 
   context "language name" do
     should "match only the required set of chars" do
-      r = Jekyll::Tags::HighlightBlock::SYNTAX
+      r = Tigefa::Tags::HighlightBlock::SYNTAX
       assert_match r, "ruby"
       assert_match r, "c#"
       assert_match r, "xml+cheetah"
@@ -55,22 +55,22 @@ CONTENT
 
   context "initialized tag" do
     should "work" do
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby ', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby ', ["test", "{% endhighlight %}", "\n"])
       assert_equal({}, tag.instance_variable_get(:@options))
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos ', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby linenos ', ["test", "{% endhighlight %}", "\n"])
       assert_equal({ 'linenos' => 'inline' }, tag.instance_variable_get(:@options))
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table ', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby linenos=table ', ["test", "{% endhighlight %}", "\n"])
       assert_equal({ 'linenos' => 'table' }, tag.instance_variable_get(:@options))
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table nowrap', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby linenos=table nowrap', ["test", "{% endhighlight %}", "\n"])
       assert_equal({ 'linenos' => 'table', 'nowrap' => true }, tag.instance_variable_get(:@options))
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl', ["test", "{% endhighlight %}", "\n"])
       assert_equal({ 'cssclass' => 'hl', 'linenos' => 'table' }, tag.instance_variable_get(:@options))
 
-      tag = Jekyll::Tags::HighlightBlock.new('highlight', 'Ruby ', ["test", "{% endhighlight %}", "\n"])
+      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'Ruby ', ["test", "{% endhighlight %}", "\n"])
       assert_equal "ruby", tag.instance_variable_get(:@lang), "lexers should be case insensitive"
     end
   end
@@ -95,11 +95,11 @@ CONTENT
 
   context "post content has highlight with file reference" do
     setup do
-      fill_post("./jekyll.gemspec")
+      fill_post("./tigefa.gemspec")
     end
 
     should "not embed the file" do
-      assert_match %{<pre><code class='text'>./jekyll.gemspec\n</code></pre>}, @result
+      assert_match %{<pre><code class='text'>./tigefa.gemspec\n</code></pre>}, @result
     end
   end
 
@@ -132,7 +132,7 @@ CONTENT
 
     context "using Textile" do
       setup do
-        create_post(@content, {}, Jekyll::Converters::Textile)
+        create_post(@content, {}, Tigefa::Converters::Textile)
       end
 
       # Broken in RedCloth 4.1.9

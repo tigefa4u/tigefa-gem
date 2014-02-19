@@ -1,7 +1,7 @@
 require 'helper'
 
 class TestFilters < Test::Unit::TestCase
-  class JekyllFilter
+  class Jekyll::Filter
     include Tigefa::Filters
 
     def initialize
@@ -12,7 +12,7 @@ class TestFilters < Test::Unit::TestCase
 
   context "filters" do
     setup do
-      @filter = TigefaFilter.new
+      @filter = Tigefa::Filter.new
       @sample_time = Time.utc(2013, 03, 27, 11, 22, 33)
       @time_as_string = "September 11, 2001 12:46:30 -0000"
     end
