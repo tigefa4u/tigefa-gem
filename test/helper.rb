@@ -1,10 +1,7 @@
-if RUBY_VERSION > '1.9'
+if RUBY_VERSION > '1.9' && ENV["COVERAGE"] == "true"
   require 'simplecov'
   require 'simplecov-gem-adapter'
   SimpleCov.start('gem')
-
-  require 'coveralls'
-  Coveralls.wear_merged!
 end
 
 require 'rubygems'
@@ -12,7 +9,7 @@ require 'test/unit'
 require 'ostruct'
 gem 'RedCloth', '>= 4.2.1'
 
-require 'tigefa'
+require 'jekyll'
 
 require 'RedCloth'
 require 'rdiscount'

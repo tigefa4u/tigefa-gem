@@ -18,27 +18,6 @@ Feature: Site configuration
     Then the _mysite directory should exist
     And I should see "Changing destination directory" in "_mysite/index.html"
 
-  Scenario Outline: Similarly named source and destination
-    Given I have a blank site in "<source>"
-    And I have an "<source>/index.md" page that contains "markdown"
-    And I have a configuration file with:
-    | key         | value    |
-    | source      | <source> |
-    | destination | <dest>   |
-    When I run jekyll
-    Then the <source> directory should exist
-    And the "<dest>/index.html" file should <file_exist> exist
-    And I should see "markdown" in "<source>/index.md"
-
-    Examples:
-      | source        | dest        | file_exist |
-      | mysite_source | mysite      |            |
-      | mysite        | mysite_dest |            |
-      | mysite/       | mysite      | not        |
-      | mysite        | ./mysite    | not        |
-      | mysite/source | mysite      | not        |
-      | mysite        | mysite/dest |            |
-
   Scenario: Exclude files inline
     Given I have an "Rakefile" file that contains "I want to be excluded"
     And I have an "README" file that contains "I want to be excluded"
@@ -67,28 +46,28 @@ Feature: Site configuration
     And I have a configuration file with "markdown" set to "rdiscount"
     When I run jekyll
     Then the _site directory should exist
-    And I should see "<a href=\"http://google.com\">Google</a>" in "_site/index.html"
+    And I should see "<a href="http://google.com">Google</a>" in "_site/index.html"
 
   Scenario: Use Kramdown for markup
     Given I have an "index.markdown" page that contains "[Google](http://google.com)"
     And I have a configuration file with "markdown" set to "kramdown"
     When I run jekyll
     Then the _site directory should exist
-    And I should see "<a href=\"http://google.com\">Google</a>" in "_site/index.html"
+    And I should see "<a href="http://google.com">Google</a>" in "_site/index.html"
 
   Scenario: Use Redcarpet for markup
     Given I have an "index.markdown" page that contains "[Google](http://google.com)"
     And I have a configuration file with "markdown" set to "redcarpet"
     When I run jekyll
     Then the _site directory should exist
-    And I should see "<a href=\"http://google.com\">Google</a>" in "_site/index.html"
+    And I should see "<a href="http://google.com">Google</a>" in "_site/index.html"
 
   Scenario: Use Maruku for markup
     Given I have an "index.markdown" page that contains "[Google](http://google.com)"
     And I have a configuration file with "markdown" set to "maruku"
     When I run jekyll
     Then the _site directory should exist
-    And I should see "<a href=\"http://google.com\">Google</a>" in "_site/index.html"
+    And I should see "<a href='http://google.com'>Google</a>" in "_site/index.html"
 
   Scenario: Highlight code with pygments
     Given I have an "index.html" file that contains "{% highlight ruby %} puts 'Hello world!' {% endhighlight %}"
@@ -225,11 +204,3 @@ Feature: Site configuration
     And I should see "Page Layout: 2 on 2010-01-01" in "_site/index.html"
     And I should see "Post Layout: <p>content for entry1.</p>" in "_site/2007/12/31/entry1.html"
     And I should see "Post Layout: <p>content for entry2.</p>" in "_site/2020/01/31/entry2.html"
-
-  Scenario: Add a gem-based plugin
-    Given I have an "index.html" file that contains "Whatever"
-    And I have a configuration file with "gems" set to "[jekyll_test_plugin]"
-    When I run jekyll
-    Then the _site directory should exist
-    And I should see "Whatever" in "_site/index.html"
-    And I should see "this is a test" in "_site/test.txt"

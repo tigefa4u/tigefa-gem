@@ -50,7 +50,6 @@ module Tigefa
 
     # Returns a sanitized String URL
     def sanitize_url(in_url)
-
       # Remove all double slashes
       url = in_url.gsub(/\/\//, "/")
 
@@ -62,7 +61,6 @@ module Tigefa
 
       # Always add a leading slash
       url.gsub!(/\A([^\/])/, '/\1')
-
       url
     end
   end

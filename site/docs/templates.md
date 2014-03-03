@@ -7,9 +7,9 @@ permalink: /docs/templates/
 ---
 
 Jekyll uses the [Liquid](http://wiki.shopify.com/Liquid) templating language to
-process templates. All of the standard Liquid [tags](http://wiki.shopify.com/Logic) and
-[filters](http://wiki.shopify.com/Filters) are
-supported. Jekyll even adds a few handy filters and tags of its own to make
+process templates. All of the [standard Liquid tags and
+filters](http://wiki.github.com/shopify/liquid/liquid-for-designers) are
+supported, Jekyll even adds a few handy filters and tags of its own to make
 common tasks easier.
 
 ## Filters
@@ -33,7 +33,7 @@ common tasks easier.
          <code class='filter'>{% raw %}{{ site.time | date_to_xmlschema }}{% endraw %}</code>
         </p>
         <p>
-          <code class='output'>2008-11-07T13:07:54-08:00</code>
+          <code class='output'>2008-11-17T13:07:54-08:00</code>
         </p>
       </td>
     </tr>
@@ -47,7 +47,7 @@ common tasks easier.
          <code class='filter'>{% raw %}{{ site.time | date_to_rfc822 }}{% endraw %}</code>
         </p>
         <p>
-          <code class='output'>Mon, 07 Nov 2008 13:07:54 -0800</code>
+          <code class='output'>Mon, 17 Nov 2008 13:07:54 -0800</code>
         </p>
       </td>
     </tr>
@@ -61,7 +61,7 @@ common tasks easier.
          <code class='filter'>{% raw %}{{ site.time | date_to_string }}{% endraw %}</code>
         </p>
         <p>
-          <code class='output'>07 Nov 2008</code>
+          <code class='output'>17 Nov 2008</code>
         </p>
       </td>
     </tr>
@@ -75,7 +75,7 @@ common tasks easier.
          <code class='filter'>{% raw %}{{ site.time | date_to_long_string }}{% endraw %}</code>
         </p>
         <p>
-          <code class='output'>07 November 2008</code>
+          <code class='output'>17 November 2008</code>
         </p>
       </td>
     </tr>
@@ -173,17 +173,6 @@ common tasks easier.
         </p>
       </td>
     </tr>
-    <tr>
-      <td>
-        <p class='name'><strong>Data To JSON</strong></p>
-        <p>Convert Hash or Array to JSON.</p>
-      </td>
-      <td class='align-center'>
-        <p>
-         <code class='filter'>{% raw %}{{ site.data.projects | jsonify }}{% endraw %}</code>
-        </p>
-      </td>
-    </tr>
   </tbody>
 </table>
 </div>
@@ -202,19 +191,6 @@ your site, you can use the `include` tag.
 Jekyll expects all include files to be placed in an `_includes` directory at the
 root of your source directory. This will embed the contents of
 `<source>/_includes/footer.html` into the calling file.
-
-<div class="note">
-  <h5>ProTip™: Use variables as file name</h5>
-  <p>
-
-    The name of the file you wish to embed can be literal (as in the example above),
-    or you can use a variable, using liquid-like variable syntax as in
-    <code>{% raw %}{% include {{my_variable}} %}{% endraw %}</code>.
-
-    Note that unlike usual liquid variable syntax, you cannot have spaces inside the curly braces.
-
-  </p>
-</div>
 
 You can also pass parameters to an include:
 
@@ -287,15 +263,6 @@ will generate the correct permalink URL for the post you specify.
 {% highlight text %}
 {% raw %}
 {% post_url 2010-07-21-name-of-post %}
-{% endraw %}
-{% endhighlight %}
-
-If you organize your posts in subdirectories, you need to include subdirectory 
-path to the post:
-
-{% highlight text %}
-{% raw %}
-{% post_url /subdir/2010-07-21-name-of-post %}
 {% endraw %}
 {% endhighlight %}
 

@@ -1,5 +1,4 @@
 require 'uri'
-require 'json'
 
 module Tigefa
   module Filters
@@ -10,7 +9,7 @@ module Tigefa
     # Returns the HTML formatted String.
     def textilize(input)
       site = @context.registers[:site]
-      converter = site.getConverterImpl(TigefaTigefa::Converters::Textile)
+      converter = site.getConverterImpl(Tigefa::Converters::Textile)
       converter.convert(input)
     end
 
@@ -21,7 +20,7 @@ module Tigefa
     # Returns the HTML formatted String.
     def markdownify(input)
       site = @context.registers[:site]
-      converter = site.getConverterImpl(TigefaTigefa::Converters::Markdown)
+      converter = site.getConverterImpl(Tigefa::Converters::Markdown)
       converter.convert(input)
     end
 
@@ -147,15 +146,6 @@ module Tigefa
       else
         "#{array[0...-1].join(', ')}, #{connector} #{array[-1]}"
       end
-    end
-
-    # Convert the input into json string
-    #
-    # input - The Array or Hash to be converted
-    #
-    # Returns the converted json string
-    def jsonify(input)
-      input.to_json
     end
 
     private

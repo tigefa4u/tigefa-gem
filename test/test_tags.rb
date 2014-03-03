@@ -4,22 +4,22 @@ require 'helper'
 
 class TestTags < Test::Unit::TestCase
 
-  def create_post(content, override = {}, converter_class = Tigefa::Converters::Markdown)
-    stub(Tigefa).configuration do
-      Tigefa::Configuration::DEFAULTS.deep_merge({'pygments' => true}).deep_merge(override)
+  def create_post(content, override = {}, converter_class = Jekyll::Converters::Markdown)
+    stub(Jekyll).configuration do
+      Jekyll::Configuration::DEFAULTS.deep_merge({'pygments' => true}).deep_merge(override)
     end
-    site = Site.new(Tigefa.configuration)
+    site = Site.new(Jekyll.configuration)
 
     if override['read_posts']
       site.read_posts('')
     end
 
-    info = { :filters => [Tigefa::Filters], :registers => { :site => site } }
+    info = { :filters => [Jekyll::Filters], :registers => { :site => site } }
     @converter = site.converters.find { |c| c.class == converter_class }
     payload = { "pygments_prefix" => @converter.pygments_prefix,
                 "pygments_suffix" => @converter.pygments_suffix }
 
-    @result = Liquid::Template.parse(content).render!(payload, info)
+    @result = Liquid::Template.parse(content).render(payload, info)
     @result = @converter.convert(@result)
   end
 
@@ -39,7 +39,7 @@ CONTENT
 
   context "language name" do
     should "match only the required set of chars" do
-      r = Tigefa::Tags::HighlightBlock::SYNTAX
+      r = Jekyll::Tags::HighlightBlock::SYNTAX
       assert_match r, "ruby"
       assert_match r, "c#"
       assert_match r, "xml+cheetah"
@@ -69,9 +69,6 @@ CONTENT
 
       tag = Tigefa::Tags::HighlightBlock.new('highlight', 'ruby linenos=table cssclass=hl', ["test", "{% endhighlight %}", "\n"])
       assert_equal({ 'cssclass' => 'hl', 'linenos' => 'table' }, tag.instance_variable_get(:@options))
-
-      tag = Tigefa::Tags::HighlightBlock.new('highlight', 'Ruby ', ["test", "{% endhighlight %}", "\n"])
-      assert_equal "ruby", tag.instance_variable_get(:@lang), "lexers should be case insensitive"
     end
   end
 
@@ -95,7 +92,7 @@ CONTENT
 
   context "post content has highlight with file reference" do
     setup do
-      fill_post("./tigefa.gemspec")
+      fill_post("./tigefa.gtigefaemspec")
     end
 
     should "not embed the file" do
@@ -226,7 +223,7 @@ CONTENT
       assert_no_match /markdown\-html\-error/, @result
     end
 
-    should "have the url to the \"complex\" post from 2008-11-21" do
+    should "have the url to the \"nested\" post from 2008-11-21" do
       assert_match %r{1\s/2008/11/21/complex/}, @result
       assert_match %r{2\s/2008/11/21/complex/}, @result
     end
@@ -252,7 +249,7 @@ CONTENT
       end
 
       should "write script tag" do
-        assert_match "<script src='https://gist.github.com/#{@gist}.js'><![CDATA[\s]]></script>", @result
+        assert_match "<script src='https://gist.github.com/#{@gist}.js'>\s</script>", @result
       end
     end
 
@@ -272,23 +269,26 @@ CONTENT
         end
 
         should "write script tag with specific file in gist" do
-          assert_match "<script src='https://gist.github.com/#{@gist}.js?file=#{@filename}'><![CDATA[\s]]></script>", @result
+          assert_match "<script src='https://gist.github.com/#{@gist}.js?file=#{@filename}'>\s</script>", @result
         end
       end
 
-      should "raise ArgumentError when invalid" do
-        @gist = "mattr-24081a1d93d2898ecf0f"
-        @filename = "myfile.ext"
-        content = <<CONTENT
+      context "when invalid" do
+        setup do
+          @gist = "mattr-24081a1d93d2898ecf0f"
+          @filename = "myfile.ext"
+          content = <<CONTENT
   ---
   title: My Cool Gist
   ---
 
   {% gist #{@gist} #{@filename} %}
 CONTENT
-
-        assert_raise ArgumentError do
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
+        end
+
+        should "write script tag with specific file in gist" do
+          assert_match "Error parsing gist id", @result
         end
       end
     end
@@ -308,12 +308,12 @@ CONTENT
       end
 
       should "write script tag with specific file in gist" do
-        assert_match "<script src='https://gist.github.com/#{@gist}.js?file=#{@filename}'><![CDATA[\s]]></script>", @result
+        assert_match "<script src='https://gist.github.com/#{@gist}.js?file=#{@filename}'>\s</script>", @result
       end
     end
 
     context "with blank gist id" do
-      should "raise ArgumentError" do
+      setup do
         content = <<CONTENT
 ---
 title: My Cool Gist
@@ -321,15 +321,16 @@ title: My Cool Gist
 
 {% gist %}
 CONTENT
+        create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
+      end
 
-        assert_raise ArgumentError do
-          create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
-        end
+      should "output error message" do
+        assert_match "Error parsing gist id", @result
       end
     end
 
     context "with invalid gist id" do
-      should "raise ArgumentError" do
+      setup do
         invalid_gist = 'invalid'
         content = <<CONTENT
 ---
@@ -338,50 +339,16 @@ title: My Cool Gist
 
 {% gist #{invalid_gist} %}
 CONTENT
+        create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
+      end
 
-        assert_raise ArgumentError do
-          create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
-        end
+      should "output error message" do
+        assert_match "Error parsing gist id", @result
       end
     end
   end
 
   context "include tag with parameters" do
-
-    context "with symlink'd include" do
-
-      should "not allow symlink includes" do
-        File.open("/tmp/pages-test", 'w') { |file| file.write("SYMLINK TEST") }
-        assert_raise IOError do
-          content = <<CONTENT
----
-title: Include symlink
----
-
-{% include tmp/pages-test %}
-
-CONTENT
-          create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true, 'safe' => true })
-        end
-        assert_no_match /SYMLINK TEST/, @result
-      end
-
-      should "not expose the existence of symlinked files" do
-        ex = assert_raise IOError do
-          content = <<CONTENT
----
-title: Include symlink
----
-
-{% include tmp/pages-test-does-not-exist %}
-
-CONTENT
-          create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true, 'safe' => true })
-        end
-        assert_match /should exist and should not be a symlink/, ex.message
-      end
-    end
-
     context "with one parameter" do
       setup do
         content = <<CONTENT
@@ -406,7 +373,7 @@ CONTENT
     end
 
     context "with invalid parameter syntax" do
-      should "throw a ArgumentError" do
+      should "throw a SyntaxError" do
         content = <<CONTENT
 ---
 title: Invalid parameter syntax
@@ -414,7 +381,7 @@ title: Invalid parameter syntax
 
 {% include params.html param s="value" %}
 CONTENT
-        assert_raise ArgumentError, 'Did not raise exception on invalid "include" syntax' do
+        assert_raise SyntaxError, 'Did not raise exception on invalid "include" syntax' do
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
         end
 
@@ -425,7 +392,7 @@ title: Invalid parameter syntax
 
 {% include params.html params="value %}
 CONTENT
-        assert_raise ArgumentError, 'Did not raise exception on invalid "include" syntax' do
+        assert_raise SyntaxError, 'Did not raise exception on invalid "include" syntax' do
           create_post(content, {'permalink' => 'pretty', 'source' => source_dir, 'destination' => dest_dir, 'read_posts' => true})
         end
       end

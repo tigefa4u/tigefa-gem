@@ -5,12 +5,12 @@
 #    {% gist 1234567 file.rb %}
 
 module Tigefa
-  class GistTag < Liquid::Tag
+  class PastebinTag < Liquid::Tag
 
     def render(context)
       if tag_contents = determine_arguments(@markup.strip)
-        gist_id, filename = tag_contents[0], tag_contents[1]
-        gist_script_tag(gist_id, filename)
+        pastebin_id, filename = tag_contents[0], tag_contents[1]
+        pastebin_script_tag(pastebin_id, filename)
       else
         "Error parsing gist id"
       end
@@ -27,7 +27,7 @@ module Tigefa
       [matched[1].strip, matched[2].strip] if matched && matched.length >= 3
     end
 
-    def gist_script_tag(gist_id, filename = nil)
+    def pastebin_script_tag(pastebin_id, filename = nil)
       if filename.empty?
         "<script src=\"https://gist.github.com/#{gist_id}.js\"> </script>"
       else
@@ -37,4 +37,4 @@ module Tigefa
   end
 end
 
-Liquid::Template.register_tag('gist', Tigefa::GistTag)
+Liquid::Template.register_tag('pastebin', Tigefa::PastebinTag)

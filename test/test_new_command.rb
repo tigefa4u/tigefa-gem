@@ -31,7 +31,7 @@ class TestNewCommand < Test::Unit::TestCase
 
     should 'display a success message' do
       output = capture_stdout { Tigefa::Commands::New.process(@args) }
-      success_message = "New jekyll site installed in #{@full_path}.\n"
+      success_message = "New tigefA site installed in #{@full_path}.\n"
       assert_equal success_message, output
     end
 

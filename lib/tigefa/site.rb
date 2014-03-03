@@ -1,9 +1,9 @@
-module Tigefa
+module TigefaTigefa
   class Site
     attr_accessor :config, :layouts, :posts, :pages, :static_files,
                   :categories, :exclude, :include, :source, :dest, :lsi, :pygments,
                   :permalink_style, :tags, :time, :future, :safe, :plugins, :limit_posts,
-                  :show_drafts, :keep_files, :baseurl, :data, :file_read_opts, :gems
+                  :show_drafts, :keep_files, :baseurl
 
     attr_accessor :converters, :generators
 
@@ -13,7 +13,7 @@ module Tigefa
     def initialize(config)
       self.config          = config.clone
 
-      %w[safe lsi pygments baseurl exclude include future show_drafts limit_posts keep_files gems].each do |opt|
+      %w[safe lsi pygments baseurl exclude include future show_drafts limit_posts keep_files].each do |opt|
         self.send("#{opt}=", config[opt])
       end
 
@@ -21,9 +21,6 @@ module Tigefa
       self.dest            = File.expand_path(config['destination'])
       self.plugins         = plugins_path
       self.permalink_style = config['permalink'].to_sym
-
-      self.file_read_opts = {}
-      self.file_read_opts[:encoding] = config['encoding'] if config['encoding']
 
       self.reset
       self.setup
@@ -56,7 +53,6 @@ module Tigefa
       self.static_files    = []
       self.categories      = Hash.new { |hash, key| hash[key] = [] }
       self.tags            = Hash.new { |hash, key| hash[key] = [] }
-      self.data            = {}
 
       if self.limit_posts < 0
         raise ArgumentError, "limit_posts must be a non-negative number"
@@ -67,41 +63,31 @@ module Tigefa
     #
     # Returns nothing.
     def setup
-      ensure_not_in_dest
+      # Check that the destination dir isn't the source dir or a directory
+      # parent to the source dir.
+      if self.source =~ /^#{self.dest}/
+        raise FatalException.new "Destination directory cannot be or contain the Source directory."
+      end
 
       # If safe mode is off, load in any Ruby files under the plugins
       # directory.
       unless self.safe
         self.plugins.each do |plugins|
-            Dir[File.join(plugins, "**/*.rb")].sort.each do |f|
+            Dir[File.join(plugins, "**/*.rb")].each do |f|
               require f
             end
         end
-        self.gems.each do |gem|
-          require gem
-        end
       end
 
-      self.converters = instantiate_subclasses(Jekyll::Converter)
-      self.generators = instantiate_subclasses(Jekyll::Generator)
-    end
-
-    # Check that the destination dir isn't the source dir or a directory
-    # parent to the source dir.
-    def ensure_not_in_dest
-      dest = Pathname.new(self.dest)
-      Pathname.new(self.source).ascend do |path|
-        if path == dest
-          raise FatalException.new "Destination directory cannot be or contain the Source directory."
-        end
-      end
+      self.converters = instantiate_subclasses(Tigefa::Converter)
+      self.generators = instantiate_subclasses(Tigefa::Generator)
     end
 
     # Internal: Setup the plugin search path
     #
     # Returns an Array of plugin search paths
     def plugins_path
-      if (config['plugins'] == Jekyll::Configuration::DEFAULTS['plugins'])
+      if (config['plugins'] == Tigefa::Configuration::DEFAULTS['plugins'])
         [File.join(self.source, config['plugins'])]
       else
         Array(config['plugins']).map { |d| File.expand_path(d) }
@@ -114,7 +100,6 @@ module Tigefa
     def read
       self.read_layouts
       self.read_directories
-      self.read_data(config['data_source'])
     end
 
     # Read all the files in <source>/<layouts> and create a new Layout object
@@ -125,7 +110,7 @@ module Tigefa
       base = File.join(self.source, self.config['layouts'])
       return unless File.exists?(base)
       entries = []
-      Dir.chdir(base) { entries = filter_entries(Dir['**/*.*']) }
+      Dir.chdir(base) { entries = filter_entries(Dir['*.*']) }
 
       entries.each do |f|
         name = f.split(".")[0..-2].join(".")
@@ -169,14 +154,19 @@ module Tigefa
     #
     # Returns nothing.
     def read_posts(dir)
-      posts = read_things(dir, '_posts', Post)
+      entries = get_entries(dir, '_posts')
 
-      posts.each do |post|
-        if post.published && (self.future || post.date <= self.time)
-          aggregate_post_info(post)
+      # first pass processes, but does not yet render post content
+      entries.each do |f|
+        if Post.valid?(f)
+          post = Post.new(self, self.source, dir, f)
+
+          if post.published && (self.future || post.date <= self.time)
+            aggregate_post_info(post)
+          end
         end
       end
-   end
+    end
 
     # Read all the files in <source>/<dir>/_drafts and create a new Post
     # object with each one.
@@ -185,37 +175,15 @@ module Tigefa
     #
     # Returns nothing.
     def read_drafts(dir)
-      drafts = read_things(dir, '_drafts', Draft)
+      entries = get_entries(dir, '_drafts')
 
-      drafts.each do |draft|
-        aggregate_post_info(draft)
-      end
-    end
+      # first pass processes, but does not yet render draft content
+      entries.each do |f|
+        if Draft.valid?(f)
+          draft = Draft.new(self, self.source, dir, f)
 
-    def read_things(dir, magic_dir, klass)
-      get_entries(dir, magic_dir).map do |entry|
-        klass.new(self, self.source, dir, entry) if klass.valid?(entry)
-      end.reject do |entry|
-        entry.nil?
-      end
-    end
-
-    # Read and parse all yaml files under <source>/<dir>
-    #
-    # Returns nothing
-    def read_data(dir)
-      base = File.join(self.source, dir)
-      return unless File.directory?(base) && (!self.safe || !File.symlink?(base))
-
-      entries = Dir.chdir(base) { Dir['*.{yaml,yml}'] }
-      entries.delete_if { |e| File.directory?(File.join(base, e)) }
-
-      entries.each do |entry|
-        path = File.join(self.source, dir, entry)
-        next if File.symlink?(path) && self.safe
-
-        key = sanitize_filename(File.basename(entry, '.*'))
-        self.data[key] = YAML.safe_load_file(path)
+          aggregate_post_info(draft)
+        end
       end
     end
 
@@ -232,11 +200,14 @@ module Tigefa
     #
     # Returns nothing.
     def render
-      relative_permalinks_deprecation_method
-
       payload = site_payload
-      [self.posts, self.pages].flatten.each do |page_or_post|
-        page_or_post.render(self.layouts, payload)
+      self.posts.each do |post|
+        post.render(self.layouts, payload)
+      end
+
+      self.pages.each do |page|
+        relative_permalinks_deprecation_method if page.uses_relative_permalinks
+        page.render(self.layouts, payload)
       end
 
       self.categories.values.map { |ps| ps.sort! { |a, b| b <=> a } }
@@ -281,14 +252,6 @@ module Tigefa
       hash
     end
 
-    # Prepare site data for site payload. The method maintains backward compatibility
-    # if the key 'data' is already used in _config.yml.
-    #
-    # Returns the Hash to be hooked to site.data.
-    def site_data
-      self.config['data'] || self.data
-    end
-
     # The Hash payload containing site-wide data.
     #
     # Returns the Hash: { "site" => data } where data is a Hash with keys:
@@ -303,15 +266,14 @@ module Tigefa
     #   "tags"       - The Hash of tag values and Posts.
     #                  See Site#post_attr_hash for type info.
     def site_payload
-      {"jekyll" => { "version" => Tigefa::VERSION },
+      {"tigefa" => { "version" => Tigefa::VERSION },
        "site" => self.config.merge({
           "time"       => self.time,
           "posts"      => self.posts.sort { |a, b| b <=> a },
           "pages"      => self.pages,
           "html_pages" => self.pages.reject { |page| !page.html? },
           "categories" => post_attr_hash('categories'),
-          "tags"       => post_attr_hash('tags'),
-          "data"       => site_data})}
+          "tags"       => post_attr_hash('tags')})}
     end
 
     # Filter out any files/directories that are hidden or backup files (start
@@ -323,7 +285,14 @@ module Tigefa
     #
     # Returns the Array of filtered entries.
     def filter_entries(entries)
-      EntryFilter.new(self).filter(entries)
+      entries.reject do |e|
+        unless self.include.glob_include?(e)
+          ['.', '_', '#'].include?(e[0..0]) ||
+          e[-1..-1] == '~' ||
+          self.exclude.glob_include?(e) ||
+          (File.symlink?(e) && self.safe)
+        end
+      end
     end
 
     # Get the implementation class for the given Converter.
@@ -380,14 +349,15 @@ module Tigefa
     end
 
     def relative_permalinks_deprecation_method
-      if config['relative_permalinks'] && has_relative_page?
+      if config['relative_permalinks'] && !@deprecated_relative_permalinks
         $stderr.puts # Places newline after "Generating..."
-        Tigefa.logger.warn "Deprecation:", "Starting in 2.0, permalinks for pages" +
+        Tigefa.logger.warn "Deprecation:", "Starting in 1.1, permalinks for pages" +
                                             " in subfolders must be relative to the" +
                                             " site source directory, not the parent" +
                                             " directory. Check http://jekyllrb.com/docs/upgrading/"+
                                             " for more info."
         $stderr.print Tigefa.logger.formatted_topic("") + "..." # for "done."
+        @deprecated_relative_permalinks = true
       end
     end
 
@@ -401,10 +371,6 @@ module Tigefa
 
     private
 
-    def has_relative_page?
-      self.pages.any? { |page| page.uses_relative_permalinks }
-    end
-
     def has_yaml_header?(file)
       "---" == File.open(file) { |fd| fd.read(3) }
     end
@@ -416,12 +382,6 @@ module Tigefa
 
     def site_cleaner
       @site_cleaner ||= Cleaner.new(self)
-    end
-
-    def sanitize_filename(name)
-      name = name.gsub(/[^\w\s_-]+/, '')
-      name = name.gsub(/(^|\b\s)\s+($|\s?\b)/, '\\1\\2')
-      name = name.gsub(/\s+/, '_')
     end
   end
 end

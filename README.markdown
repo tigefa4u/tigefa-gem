@@ -1,14 +1,10 @@
-# Tigefa Gem
+# tigefa as Jekyll
 
-> This Generator site jekyll powered but command line changed from `jekyll new <site name>` replaced `tigefa new <site name>`
-> Hand from hand, eye from eye.
->> Thanks for visiting.
+[![Gem Version](https://badge.fury.io/rb/jekyll.png)](http://badge.fury.io/rb/jekyll)
 
-[![Gem Version](https://badge.fury.io/rb/tigefa.png)](http://badge.fury.io/rb/tigefa)
-
-[![Build Status](https://secure.travis-ci.org/tigefa4u/tigefa-gem.png?branch=master)](https://travis-ci.org/tigefa4u/tigefa-gem)
-[![Code Climate](https://codeclimate.com/github/tigefa4u/tigefa-gem.png)](https://codeclimate.com/github/tigefa4u/tigefa-gem)
-[![Coverage Status](https://coveralls.io/repos/tigefa4u/tigefa-gem/badge.png)](https://coveralls.io/r/tigefa4u/tigefa-gem)
+[![Build Status](https://secure.travis-ci.org/mojombo/jekyll.png)](https://travis-ci.org/mojombo/jekyll)
+[![Code Climate](https://codeclimate.com/github/mojombo/jekyll.png)](https://codeclimate.com/github/mojombo/jekyll)
+[![Dependency Status](https://gemnasium.com/mojombo/jekyll.png)](https://gemnasium.com/mojombo/jekyll)
 
 By Tom Preston-Werner, Nick Quaranto, and many awesome contributors!
 
@@ -20,7 +16,7 @@ Jekyll is a simple, blog aware, static site generator. It takes a template direc
 * Read up about its [Usage](http://jekyllrb.com/docs/usage/) and [Configuration](http://jekyllrb.com/docs/configuration/)
 * Take a gander at some existing [Sites](http://wiki.github.com/mojombo/jekyll/sites)
 * Fork and [Contribute](http://jekyllrb.com/docs/contributing/) your own modifications
-* Have questions? Check out `#jekyll` on irc.freenode.net.
+* Have questions? Check out `#tigefa` on irc.freenode.net.
 
 ## Diving In
 

@@ -52,7 +52,7 @@ module Tigefa
 
     def display(output)
       $stdout.print("\n")
-      $stdout.print(Jekyll.logger.formatted_topic(output))
+      $stdout.print(Tigefa.logger.formatted_topic(output))
       $stdout.flush
     end
   end

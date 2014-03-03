@@ -1,5 +1,4 @@
 language: ruby
-cache: bundler
 before_install:
   - gem install bundler
 rvm:
@@ -10,10 +9,8 @@ rvm:
 script: bundle exec rake
 notifications:
   irc:
-    on_success: change
-    on_failure: change
     channels:
-      - "irc.freenode.org#jekyll"
+      - "irc.freenode.org#tigefa"
     #on_success: change
     #on_failure: change
     template:

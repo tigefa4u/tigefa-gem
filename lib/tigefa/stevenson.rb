@@ -7,7 +7,7 @@ module Tigefa
     WARN   = 2
     ERROR  = 3
 
-    # Public: Create a new instance of Stevenson, Tigefa's logger
+    # Public: Create a new instance of Stevenson, Jekyll's logger
     #
     # level - (optional, integer) the log level
     #
@@ -46,7 +46,7 @@ module Tigefa
       $stderr.puts(message(topic, message).yellow) if log_level <= WARN
     end
 
-    # Public: Print a Tigefa error message to stderr
+    # Public: Print a jekyll error message to stderr
     #
     # topic - the topic of the message, e.g. "Configuration file", "Deprecation", etc.
     # message - the message detail
@@ -56,7 +56,7 @@ module Tigefa
       $stderr.puts(message(topic, message).red) if log_level <= ERROR
     end
 
-    # Public: Print a Tigefa error message to stderr and immediately abort the process
+    # Public: Print a Jekyll error message to stderr and immediately abort the process
     #
     # topic - the topic of the message, e.g. "Configuration file", "Deprecation", etc.
     # message - the message detail (can be omitted)
@@ -67,7 +67,7 @@ module Tigefa
       abort
     end
 
-    # Public: Build a Tigefa topic method
+    # Public: Build a Jekyll topic method
     #
     # topic - the topic of the message, e.g. "Configuration file", "Deprecation", etc.
     # message - the message detail

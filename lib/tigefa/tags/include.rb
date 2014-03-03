@@ -1,33 +1,21 @@
 module Tigefa
   module Tags
-    class IncludeTagError < StandardError
-      attr_accessor :path
-
-      def initialize(msg, path)
-        super(msg)
-        @path = path
-      end
-    end
-
     class IncludeTag < Liquid::Tag
 
-      SYNTAX_EXAMPLE = "{% include file.ext param='value' param2='value' %}"
-
-      VALID_SYNTAX = /([\w-]+)\s*=\s*(?:"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'|([\w\.-]+))/
-
-      INCLUDES_DIR = '_includes'
+      MATCHER = /([\w-]+)\s*=\s*(?:"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'|([\w\.-]+))/
 
       def initialize(tag_name, markup, tokens)
         super
         @file, @params = markup.strip.split(' ', 2);
-        validate_params if @params
       end
 
       def parse_params(context)
+        validate_syntax
+
         params = {}
         markup = @params
 
-        while match = VALID_SYNTAX.match(markup) do
+        while match = MATCHER.match(markup) do
           markup = markup[match.end(0)..-1]
 
           value = if match[2]
@@ -43,89 +31,58 @@ module Tigefa
         params
       end
 
-      def validate_file_name(file)
-        if file !~ /^[a-zA-Z0-9_\/\.-]+$/ || file =~ /\.\// || file =~ /\/\./
-            raise ArgumentError.new <<-eos
-Invalid syntax for include tag. File contains invalid characters or sequences:
-
-	#{@file}
-
-Valid syntax:
-
-	#{SYNTAX_EXAMPLE}
-
-eos
-        end
-      end
-
-      def validate_params
-        full_valid_syntax = Regexp.compile('\A\s*(?:' + VALID_SYNTAX.to_s + '(?=\s|\z)\s*)*\z')
-        unless @params =~ full_valid_syntax
-          raise ArgumentError.new <<-eos
+      # ensure the entire markup string from start to end is valid syntax, and params are separated by spaces
+      def validate_syntax
+        full_matcher = Regexp.compile('\A\s*(?:' + MATCHER.to_s + '(?=\s|\z)\s*)*\z')
+        unless @params =~ full_matcher
+          raise SyntaxError.new <<-eos
 Invalid syntax for include tag:
 
 	#{@params}
 
 Valid syntax:
 
-	#{SYNTAX_EXAMPLE}
+	{% include file.ext param='value' param2="value" %}
 
 eos
         end
       end
 
-      # Grab file read opts in the context
-      def file_read_opts(context)
-        context.registers[:site].file_read_opts
-      end
-
-      def retrieve_variable(context)
-        if /\{\{([\w\-\.]+)\}\}/ =~ @file
-          raise ArgumentError.new("No variable #{$1} was found in include tag") if context[$1].nil?
-          context[$1]
-        end
-      end
-
       def render(context)
-        dir = File.join(File.realpath(context.registers[:site].source), INCLUDES_DIR)
+        includes_dir = File.join(context.registers[:site].source, '_includes')
 
-        file = retrieve_variable(context) || @file
-        validate_file_name(file)
+        if error = validate_file(includes_dir)
+          return error
+        end
 
-        path = File.join(dir, file)
-        validate_path(path, dir, context.registers[:site].safe)
+        source = File.read(File.join(includes_dir, @file))
+        partial = Liquid::Template.parse(source)
 
-        begin
-          partial = Liquid::Template.parse(source(path, context))
-
-          context.stack do
-            context['include'] = parse_params(context) if @params
-            partial.render!(context)
-          end
-        rescue => e
-          raise IncludeTagError.new e.message, File.join(INCLUDES_DIR, @file)
+        context.stack do
+          context['include'] = parse_params(context) if @params
+          partial.render(context)
         end
       end
 
-      def validate_path(path, dir, safe)
-        if safe && !realpath_prefixed_with?(path, dir)
-          raise IOError.new "The included file '#{path}' should exist and should not be a symlink"
-        elsif !File.exist?(path)
-          raise IOError.new "Included file '#{path}' not found"
+      def validate_file(includes_dir)
+        if File.symlink?(includes_dir)
+          return "Includes directory '#{includes_dir}' cannot be a symlink"
         end
-      end
 
-      def realpath_prefixed_with?(path, dir)
-        File.exist?(path) && File.realpath(path).start_with?(dir)
+        if @file !~ /^[a-zA-Z0-9_\/\.-]+$/ || @file =~ /\.\// || @file =~ /\/\./
+          return "Include file '#{@file}' contains invalid characters or sequences"
+        end
+
+        file = File.join(includes_dir, @file)
+        if !File.exists?(file)
+          return "Included file #{@file} not found in _includes directory"
+        elsif File.symlink?(file)
+          return "The included file '_includes/#{@file}' should not be a symlink"
+        end
       end
 
       def blank?
         false
-      end
-
-      # This method allows to modify the file content by inheriting from the class.
-      def source(file, context)
-        File.read_with_options(file, file_read_opts(context))
       end
     end
   end

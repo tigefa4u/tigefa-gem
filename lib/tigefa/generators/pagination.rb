@@ -4,9 +4,6 @@ module Tigefa
       # This generator is safe from arbitrary code execution.
       safe true
 
-      # This generator should be passive with regard to its execution
-      priority :lowest
-
       # Generate paginated pages if necessary.
       #
       # site - The Site.
@@ -17,7 +14,7 @@ module Tigefa
           if template = template_page(site)
             paginate(site, template)
           else
-            Tigefa.logger.warn "Pagination:", "Pagination is enabled, but I couldn't find " +
+            Tigefa.logger.warn "Pagination:", "Pagination is enabled, but I couldn't find" +
             "an index.html page to use as the pagination template. Skipping pagination."
           end
         end
@@ -98,7 +95,7 @@ module Tigefa
 
     # Determine if pagination is enabled the site.
     #
-    # site - the Jekyll::Site object
+    # site - the Tigefa::Site object
     #
     # Returns true if pagination is enabled, false otherwise.
     def self.pagination_enabled?(site)
@@ -111,7 +108,7 @@ module Tigefa
     #         between the site source and `paginate_path`.
     #
     # config - the site configuration hash
-    # page   - the Jekyll::Page about which we're inquiring
+    # page   - the Tigefa::Page about which we're inquiring
     #
     # Returns true if the
     def self.pagination_candidate?(config, page)
@@ -125,7 +122,7 @@ module Tigefa
     # Determine if the subdirectories of the two paths are the same relative to source
     #
     # source        - the site source
-    # page_dir      - the directory of the Jekyll::Page
+    # page_dir      - the directory of the Tigefa::Page
     # paginate_path - the absolute paginate path (from root of FS)
     #
     # Returns whether the subdirectories are the same relative to source
@@ -138,7 +135,7 @@ module Tigefa
 
     # Static: Return the pagination path of the page
     #
-    # site     - the Jekyll::Site object
+    # site     - the Tigefa::Site object
     # num_page - the pagination page number
     #
     # Returns the pagination path as a string
@@ -172,7 +169,7 @@ module Tigefa
 
     # Initialize a new Pager.
     #
-    # site     - the Jekyll::Site object
+    # site     - the Tigefa::Site object
     # page      - The Integer page number.
     # all_posts - The Array of all the site's Posts.
     # num_pages - The Integer number of pages or nil if you'd like the number

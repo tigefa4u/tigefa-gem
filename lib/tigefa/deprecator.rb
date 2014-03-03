@@ -19,7 +19,7 @@ module Tigefa
     def self.no_subcommand(args)
       if args.size > 0 && args.first =~ /^--/ && !%w[--help --version].include?(args.first)
         Tigefa.logger.error "Deprecation:", "Tigefa now uses subcommands instead of just \
-                            switches. Run `jekyll help' to find out more."
+                            switches. Run `tigefa help' to find out more."
       end
     end
 

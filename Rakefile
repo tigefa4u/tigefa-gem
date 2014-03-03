@@ -84,14 +84,7 @@ end
 #
 #############################################################################
 
-if RUBY_VERSION > '1.9' && ENV["TRAVIS"] == "true"
-  require 'coveralls/rake/task'
-  Coveralls::RakeTask.new
-
-  task :default => [:test, :features, 'coveralls:push']
-else
-  task :default => [:test, :features]
-end
+task :default => [:test, :features]
 
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
@@ -218,7 +211,7 @@ namespace :site do
       abort "You seem to have misplaced your History.markdown file. I can haz?"
     end
   end
-
+  
   namespace :releases do
     desc "Create new release post"
     task :new, :version do |t, args|
@@ -233,7 +226,7 @@ namespace :site do
         post.puts("title: 'Jekyll #{release} Released'")
         post.puts("date: #{Time.new.strftime('%Y-%m-%d %H:%M:%S %z')}")
         post.puts("author: ")
-        post.puts("version: #{release}")
+        post.puts("version: #{version}")
         post.puts("categories: [release]")
         post.puts("---")
         post.puts
@@ -252,8 +245,8 @@ end
 #############################################################################
 
 task :release => :build do
-  unless `git branch` =~ /^(\* master|\* v1-stable)$/
-    puts "You must be on the master branch or the v1-stable branch to release!"
+  unless `git branch` =~ /^\* master$/
+    puts "You must be on the master branch to release!"
     exit!
   end
   sh "git commit --allow-empty -m 'Release #{version}'"

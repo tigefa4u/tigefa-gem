@@ -20,23 +20,16 @@ module Tigefa
       self.content || ''
     end
 
-    # Returns merged optin hash for File.read of self.site (if exists)
-    # and a given param
-    def merged_file_read_opts(opts)
-      (self.site ? self.site.file_read_opts : {}).merge(opts)
-    end
-
     # Read the YAML frontmatter.
     #
     # base - The String path to the dir containing the file.
     # name - The String filename of the file.
-    # opts - optional parameter to File.read, default at site configs
     #
     # Returns nothing.
-    def read_yaml(base, name, opts = {})
+    def read_yaml(base, name)
       begin
-        self.content = File.read_with_options(File.join(base, name),
-                                              merged_file_read_opts(opts))
+        self.content = File.read(File.join(base, name))
+
         if self.content =~ /\A(---\s*\n.*?\n?)^(---\s*$\n?)/m
           self.content = $POSTMATCH
           self.data = YAML.safe_load($1)
@@ -84,13 +77,10 @@ module Tigefa
     # info    - the info for Liquid
     #
     # Returns the converted content
-    def render_liquid(content, payload, info, path = nil)
+    def render_liquid(content, payload, info)
       Liquid::Template.parse(content).render!(payload, info)
-    rescue Tags::IncludeTagError => e
-      Tigefa.logger.error "Liquid Exception:", "#{e.message} in #{e.path}, included in #{path || self.path}"
-      raise e
     rescue Exception => e
-      Tigefa.logger.error "Liquid Exception:", "#{e.message} in #{path || self.path}"
+      Tigefa.logger.error "Liquid Exception:", "#{e.message} in #{self.path}"
       raise e
     end
 
@@ -121,8 +111,7 @@ module Tigefa
 
         self.output = self.render_liquid(layout.content,
                                          payload,
-                                         info,
-                                         File.join(self.site.config['layouts'], layout.name))
+                                         info)
 
         if layout = layouts[layout.data["layout"]]
           if used.include?(layout)

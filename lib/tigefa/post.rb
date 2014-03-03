@@ -19,10 +19,10 @@ module Tigefa
     ]
 
     # Attributes for Liquid templates
-    ATTRIBUTES_FOR_LIQUID = EXCERPT_ATTRIBUTES_FOR_LIQUID + %w[
+    ATTRIBUTES_FOR_LIQUID = EXCERPT_ATTRIBUTES_FOR_LIQUID.concat(%w[
       content
       excerpt
-    ]
+    ])
 
     # Post name validator. Post filenames must be like:
     # 2008-11-05-my-awesome-post.textile
@@ -236,7 +236,7 @@ module Tigefa
     #
     # Returns an Array of related Posts.
     def related_posts(posts)
-      Tigefa::RelatedPosts.new(self).build
+      Jekyll::RelatedPosts.new(self).build
     end
 
     # Add any necessary layouts to this post.
@@ -266,7 +266,7 @@ module Tigefa
     # Returns destination file path String.
     def destination(dest)
       # The url needs to be unescaped in order to preserve the correct filename
-      path = File.join(dest, File.expand_path(CGI.unescape(self.url), "/"))
+      path = File.join(dest, CGI.unescape(self.url))
       path = File.join(path, "index.html") if path[/\.html$/].nil?
       path
     end

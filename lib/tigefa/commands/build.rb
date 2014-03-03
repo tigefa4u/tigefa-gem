@@ -31,33 +31,27 @@ module Tigefa
       #
       # Returns nothing.
       def self.watch(site, options)
-        require 'listen'
+        require 'directory_watcher'
 
         source = options['source']
         destination = options['destination']
 
-        begin
-          dest = Pathname.new(destination).relative_path_from(Pathname.new(source)).to_s
-          ignored = Regexp.new(Regexp.escape(dest))
-        rescue ArgumentError
-          # Destination is outside the source, no need to ignore it.
-          ignored = nil
-        end
-
         Tigefa.logger.info "Auto-regeneration:", "enabled"
 
-        listener = Listen::Listener.new(source, :ignore => ignored) do |modified, added, removed|
+        dw = DirectoryWatcher.new(source, :glob => self.globs(source, destination), :pre_load => true)
+        dw.interval = 1
+
+        dw.add_observer do |*args|
           t = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-          n = modified.length + added.length + removed.length
-          print Tigefa.logger.formatted_topic("Regenerating:") + "#{n} files at #{t} "
+          print Tigefa.logger.formatted_topic("Regenerating:") + "#{args.size} files at #{t} "
           self.process_site(site)
           puts  "...done."
         end
-        listener.start
+
+        dw.start
 
         unless options['serving']
           trap("INT") do
-            listener.stop
             puts "     Halting auto-regeneration."
             exit 0
           end

@@ -23,7 +23,7 @@ module Tigefa
           end
         end
 
-        puts "New tigefa site installed in #{new_blog_path}."
+        puts "New jekyll site installed in #{new_blog_path}."
       end
 
       def self.create_blank_site(path)

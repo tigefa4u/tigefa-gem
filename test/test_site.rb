@@ -156,7 +156,7 @@ class TestSite < Test::Unit::TestCase
 
     should "read layouts" do
       @site.read_layouts
-      assert_equal ["default", "simple", "post/simple"].sort, @site.layouts.keys.sort
+      assert_equal ["default", "simple"].sort, @site.layouts.keys.sort
     end
 
     should "read posts" do
@@ -177,6 +177,69 @@ class TestSite < Test::Unit::TestCase
       assert_equal posts.size - @num_invalid_posts, @site.posts.size
       assert_equal categories, @site.categories.keys.sort
       assert_equal 4, @site.categories['foo'].size
+    end
+
+    should "filter entries" do
+      ent1 = %w[foo.markdown bar.markdown baz.markdown #baz.markdown#
+              .baz.markdow foo.markdown~]
+      ent2 = %w[.htaccess _posts _pages bla.bla]
+
+      assert_equal %w[foo.markdown bar.markdown baz.markdown], @site.filter_entries(ent1)
+      assert_equal %w[.htaccess bla.bla], @site.filter_entries(ent2)
+    end
+
+    should "filter entries with exclude" do
+      excludes = %w[README TODO]
+      files = %w[index.html site.css .htaccess]
+
+      @site.exclude = excludes + ["exclude*"]
+      assert_equal files, @site.filter_entries(excludes + files + ["excludeA"])
+    end
+
+    should "not filter entries within include" do
+      includes = %w[_index.html .htaccess include*]
+      files = %w[index.html _index.html .htaccess includeA]
+
+      @site.include = includes
+      assert_equal files, @site.filter_entries(files)
+    end
+
+    should "filter symlink entries when safe mode enabled" do
+      stub(Tigefa).configuration do
+        Tigefa::Configuration::DEFAULTS.merge({'source' => source_dir, 'destination' => dest_dir, 'safe' => true})
+      end
+      site = Site.new(Tigefa.configuration)
+      stub(File).symlink?('symlink.js') {true}
+      files = %w[symlink.js]
+      assert_equal [], site.filter_entries(files)
+    end
+
+    should "not filter symlink entries when safe mode disabled" do
+      stub(File).symlink?('symlink.js') {true}
+      files = %w[symlink.js]
+      assert_equal files, @site.filter_entries(files)
+    end
+
+    should "not include symlinks in safe mode" do
+      stub(Tigefa).configuration do
+        Tigefa::Configuration::DEFAULTS.merge({'source' => source_dir, 'destination' => dest_dir, 'safe' => true})
+      end
+      site = Site.new(Tigefa.configuration)
+
+      site.read_directories("symlink-test")
+      assert_equal [], site.pages
+      assert_equal [], site.static_files
+    end
+
+    should "include symlinks in unsafe mode" do
+      stub(Tigefa).configuration do
+        Tigefa::Configuration::DEFAULTS.merge({'source' => source_dir, 'destination' => dest_dir, 'safe' => false})
+      end
+      site = Site.new(Tigefa.configuration)
+
+      site.read_directories("symlink-test")
+      assert_not_equal [], site.pages
+      assert_not_equal [], site.static_files
     end
 
     context 'error handling' do
@@ -272,62 +335,5 @@ class TestSite < Test::Unit::TestCase
       end
     end
 
-    context 'data directory' do
-      should 'auto load yaml files' do
-        site = Site.new(Tigefa.configuration)
-        site.process
-
-        file_content = YAML.safe_load_file(File.join(source_dir, '_data', 'members.yaml'))
-
-        assert_equal site.data['members'], file_content
-        assert_equal site.site_payload['site']['data']['members'], file_content
-      end
-
-      should 'auto load yml files' do
-        site = Site.new(Tigefa.configuration)
-        site.process
-
-        file_content = YAML.safe_load_file(File.join(source_dir, '_data', 'languages.yml'))
-
-        assert_equal site.data['languages'], file_content
-        assert_equal site.site_payload['site']['data']['languages'], file_content
-      end
-
-      should "load symlink files in unsafe mode" do
-        site = Site.new(Tigefa.configuration.merge({'safe' => false}))
-        site.process
-
-        file_content = YAML.safe_load_file(File.join(source_dir, '_data', 'products.yml'))
-
-        assert_equal site.data['products'], file_content
-        assert_equal site.site_payload['site']['data']['products'], file_content
-      end
-
-      should "not load symlink files in safe mode" do
-        site = Site.new(Tigefa.configuration.merge({'safe' => true}))
-        site.process
-
-        assert_nil site.data['products']
-        assert_nil site.site_payload['site']['data']['products']
-      end
-
-      should "load symlink directory in unsafe mode" do
-        site = Site.new(Tigefa.configuration.merge({'safe' => false, 'data_source' => File.join('symlink-test', '_data')}))
-        site.process
-
-        assert_not_nil site.data['products']
-        assert_not_nil site.data['languages']
-        assert_not_nil site.data['members']
-      end
-
-      should "not load symlink directory in safe mode" do
-        site = Site.new(Tigefa.configuration.merge({'safe' => true, 'data_source' => File.join('symlink-test', '_data')}))
-        site.process
-
-        assert_nil site.data['products']
-        assert_nil site.data['languages']
-        assert_nil site.data['members']
-      end
-    end
   end
 end

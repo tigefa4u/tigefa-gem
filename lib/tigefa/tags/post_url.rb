@@ -19,9 +19,9 @@ module Tigefa
       end
 
       private
-      # Construct the directory-aware post slug for a TigefaTigefa::Post
+      # Construct the directory-aware post slug for a Tigefa::Post
       #
-      # other - the TigefaTigefa::Post
+      # other - the Tigefa::Post
       #
       # Returns the post slug with the subdirectory (relative to _posts)
       def post_slug(other)
@@ -50,11 +50,9 @@ module Tigefa
           end
         end
 
-        raise ArgumentError.new <<-eos
-Could not find post "#{@orig_post}" in tag 'post_url'.
+        puts "ERROR: post_url: \"#{@orig_post}\" could not be found"
 
-Make sure the post exists and the name is correct.
-eos
+        return "#"
       end
     end
   end

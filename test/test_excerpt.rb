@@ -14,7 +14,7 @@ class TestExcerpt < Test::Unit::TestCase
     setup do
       clear_dest
       stub(Tigefa).configuration do
-        Tigefa::Configuration::DEFAULTS.merge({'excerpt_separator' => ''})
+        Tigefa:Tigefa:Configuration::DEFAULTS.merge({'excerpt_separator' => ''})
       end
       @site = Site.new(Tigefa.configuration)
       @post = setup_post("2013-07-22-post-excerpt-with-layout.markdown")
@@ -30,7 +30,7 @@ class TestExcerpt < Test::Unit::TestCase
     setup do
       clear_dest
       stub(Tigefa).configuration { Tigefa::Configuration::DEFAULTS }
-      @site = Site.new(Tigefa.configuration)
+      @site = Site.new(Jekyll.configuration)
       @post = setup_post("2013-07-22-post-excerpt-with-layout.markdown")
       @excerpt = @post.send :extract_excerpt
     end
@@ -66,7 +66,7 @@ class TestExcerpt < Test::Unit::TestCase
         end
 
         should "be the first paragraph of the page" do
-          assert_equal "<p>First paragraph with <a href=\"http://www.jekyllrb.com/\">link ref</a>.</p>", @extracted_excerpt.content
+          assert_equal "<p>First paragraph with <a href='http://www.jekyllrb.com/'>link ref</a>.</p>", @extracted_excerpt.content
         end
 
         should "link properly" do

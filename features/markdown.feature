@@ -13,8 +13,8 @@ Feature: Markdown
     When I run jekyll
     Then the _site directory should exist
     And I should see "Index" in "_site/index.html"
-    And I should see "<h1 id=\"my_title\">My Title</h1>" in "_site/2009/03/27/hackers.html"
-    And I should see "<h1 id=\"my_title\">My Title</h1>" in "_site/index.html"
+    And I should see "<h1 id='my_title'>My Title</h1>" in "_site/2009/03/27/hackers.html"
+    And I should see "<h1 id='my_title'>My Title</h1>" in "_site/index.html"
 
   Scenario: Markdown in pagination on index
     Given I have a configuration file with "paginate" set to "5"
@@ -26,42 +26,5 @@ Feature: Markdown
     When I run jekyll
     Then the _site directory should exist
     And I should see "Index" in "_site/index.html"
-    And I should see "<h1 id=\"my_title\">My Title</h1>" in "_site/index.html"
+    And I should see "<h1 id='my_title'>My Title</h1>" in "_site/index.html"
     
-  Scenario: Maruku fenced codeblocks
-    Given I have a configuration file with "markdown" set to "maruku"
-    And I have an "index.markdown" file with content:
-       """
-       ---
-       title: My title
-       ---
-
-       # My title
-
-       ```
-       My awesome code
-       ```
-       """
-    When I run jekyll
-    Then the _site directory should exist
-    And I should see "My awesome code" in "_site/index.html"
-    And I should see "<pre><code>\nMy awesome code\n</code></pre>" in "_site/index.html"
-    
-  Scenario: Maruku fenced codeblocks
-    Given I have a configuration file with "markdown" set to "maruku"
-    And I have an "index.markdown" file with content:
-       """
-       ---
-       title: My title
-       ---
-
-       # My title
-
-       ```ruby
-       puts "My awesome string"
-       ```
-       """
-    When I run jekyll
-    Then the _site directory should exist
-    And I should see "My awesome string" in "_site/index.html"
-    And I should see "<pre class="ruby"><code class="ruby">\nputs &quot;My awesome string&quot;\n</code></pre>" in "_site/index.html"

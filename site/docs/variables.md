@@ -2,14 +2,14 @@
 layout: docs
 title: Variables
 prev_section: pages
-next_section: datafiles
+next_section: migrations
 permalink: /docs/variables/
 ---
 
 Jekyll traverses your site looking for files to process. Any files with [YAML
 Front Matter](../frontmatter/) are subject to processing. For each of these
 files, Jekyll makes a variety of data available via the [Liquid templating
-system](http://wiki.shopify.com/Liquid). The
+system](http://wiki.github.com/shopify/liquid/liquid-for-designers). The
 following is a reference of the available data.
 
 ## Global Variables

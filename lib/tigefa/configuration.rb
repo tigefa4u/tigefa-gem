@@ -10,13 +10,9 @@ module Tigefa
       'destination'   => File.join(Dir.pwd, '_site'),
       'plugins'       => '_plugins',
       'layouts'       => '_layouts',
-      'data_source'   =>  '_data',
       'keep_files'    => ['.git','.svn'],
-      'gems'          => [],
 
       'timezone'      => nil,           # use the local timezone
-
-      'encoding'      => nil,           # use the system encoding
 
       'safe'          => false,
       'detach'        => false,          # default to not detaching the server
@@ -27,7 +23,7 @@ module Tigefa
       'pygments'      => true,
 
       'relative_permalinks' => true,     # backwards-compatibility with < 1.0
-                                         # will be set to false once 2.0 hits
+                                         # will be set to false once 1.1 hits
 
       'markdown'      => 'maruku',
       'permalink'     => 'date',
@@ -45,7 +41,6 @@ module Tigefa
       'excerpt_separator' => "\n\n",
 
       'maruku' => {
-        'fenced_code_blocks' => true,
         'use_tex'    => false,
         'use_divs'   => false,
         'png_engine' => 'blahtex',
@@ -100,17 +95,6 @@ module Tigefa
       override['source'] || self['source'] || DEFAULTS['source']
     end
 
-    def safe_load_file(filename)
-      case File.extname(filename)
-      when '.toml'
-        TOML.load_file(filename)
-      when /\.y(a)?ml/
-        YAML.safe_load_file(filename)
-      else
-        raise ArgumentError, "No parser for '#{filename}' is available. Use a .toml or .y(a)ml file instead."
-      end
-    end
-
     # Public: Generate list of configuration files from the override
     #
     # override - the command-line options hash
@@ -133,8 +117,8 @@ module Tigefa
     #
     # Returns this configuration, overridden by the values in the file
     def read_config_file(file)
-      next_config = safe_load_file(file)
-      raise ArgumentError.new("Configuration file: (INVALID) #{file}".yellow) unless next_config.is_a?(Hash)
+      next_config = YAML.safe_load_file(file)
+      raise ArgumentError.new("Configuration file: (INVALID) #{file}".yellow) if !next_config.is_a?(Hash)
       Tigefa.logger.info "Configuration file:", file
       next_config
     rescue SystemCallError
@@ -143,7 +127,7 @@ module Tigefa
         {}
       else
         Tigefa.logger.error "Fatal:", "The configuration file '#{file}' could not be found."
-        raise LoadError, "The Configuration file '#{file}' could not be found."
+        raise LoadError
       end
     end
 
@@ -180,7 +164,7 @@ module Tigefa
     end
 
     # Public: Ensure the proper options are set in the configuration to allow for
-    # backwards-compatibility with Jekyll pre-1.0
+    # backwards-compatibility with Tigefa pre-1.0
     #
     # Returns the backwards-compatible configuration
     def backwards_compatibilize

@@ -8,7 +8,6 @@ module Tigefa
           @errors = []
           load_divs_library if @config['maruku']['use_divs']
           load_blahtext_library if @config['maruku']['use_tex']
-          enable_fenced_code_blocks if @config['maruku']['fenced_code_blocks']
         rescue LoadError
           STDERR.puts 'You are missing a library required for Markdown. Please run:'
           STDERR.puts '  $ [sudo] gem install maruku'
@@ -36,17 +35,13 @@ module Tigefa
           MaRuKu::Globals[:html_png_url] = @config['maruku']['png_url']
         end
 
-        def enable_fenced_code_blocks
-          MaRuKu::Globals[:fenced_code_blocks] = true
-        end
-
         def print_errors_and_fail
           print @errors.join
           raise MaRuKu::Exception, "MaRuKu encountered problem(s) while converting your markup."
         end
 
         def convert(content)
-          converted = Maruku.new(content, :error_stream => @errors).to_html.strip
+          converted = Maruku.new(content, :error_stream => @errors).to_html
           print_errors_and_fail unless @errors.empty?
           converted
         end

@@ -20,13 +20,11 @@ require 'fileutils'
 require 'time'
 require 'safe_yaml'
 require 'English'
-require 'pathname'
 
 # 3rd party
 require 'liquid'
 require 'maruku'
 require 'colorator'
-require 'toml'
 
 # internal requires
 require 'tigefa/core_ext'
@@ -46,7 +44,6 @@ require 'tigefa/static_file'
 require 'tigefa/errors'
 require 'tigefa/related_posts'
 require 'tigefa/cleaner'
-require 'tigefa/entry_filter'
 
 # extensions
 require 'tigefa/plugin'
@@ -62,8 +59,8 @@ require_all 'tigefa/tags'
 
 SafeYAML::OPTIONS[:suppress_warnings] = true
 
-module Tigefa
-  VERSION = '1.1.1'
+module Jekyll
+  VERSION = '1.1.3'
 
   # Public: Generate a Jekyll configuration Hash by merging the default
   # options with anything in _config.yml, and adding the given options on top.

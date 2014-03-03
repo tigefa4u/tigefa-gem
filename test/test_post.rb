@@ -75,17 +75,6 @@ class TestPost < Test::Unit::TestCase
         assert_equal "/my_category/permalinked-post", @post.url
       end
 
-      should "not be writable outside of destination" do
-        unexpected = File.expand_path("../../../baddie.html", dest_dir)
-        File.delete unexpected if File.exist?(unexpected)
-        post = setup_post("2014-01-06-permalink-traversal.md")
-        do_render(post)
-        post.write(dest_dir)
-
-        assert !File.exist?(unexpected)
-        assert File.exist?(File.expand_path("baddie.html", dest_dir))
-      end
-
       context "with CRLF linebreaks" do
         setup do
           @real_file = "2009-05-24-yaml-linebreak.markdown"
@@ -295,7 +284,7 @@ class TestPost < Test::Unit::TestCase
         end
 
         should "return rendered HTML" do
-          assert_equal "<p>First paragraph with <a href=\"http://www.jekyllrb.com/\">link ref</a>.</p>",
+          assert_equal "<p>First paragraph with <a href='http://www.jekyllrb.com/'>link ref</a>.</p>",
                        @post.excerpt
         end
 

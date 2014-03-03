@@ -30,7 +30,7 @@ class TestConfiguration < Test::Unit::TestCase
       @config = Configuration[{"source" => source_dir}]
       @no_override     = {}
       @one_config_file = {"config" => "config.yml"}
-      @multiple_files  = {"config" => %w[config/site.yml config/deploy.toml configuration.yml]}
+      @multiple_files  = {"config" => %w[config/site.yml config/deploy.yml configuration.yml]}
     end
 
     should "always return an array" do
@@ -45,7 +45,7 @@ class TestConfiguration < Test::Unit::TestCase
       assert_equal %w[config.yml], @config.config_files(@one_config_file)
     end
     should "return an array of the config files if given many config files" do
-      assert_equal %w[config/site.yml config/deploy.toml configuration.yml], @config.config_files(@multiple_files)
+      assert_equal %w[config/site.yml config/deploy.yml configuration.yml], @config.config_files(@multiple_files)
     end
   end
   context "#backwards_compatibilize" do
@@ -102,27 +102,27 @@ class TestConfiguration < Test::Unit::TestCase
     should "fire warning with no _config.yml" do
       mock(YAML).safe_load_file(@path) { raise SystemCallError, "No such file or directory - #{@path}" }
       mock($stderr).puts("Configuration file: none".yellow)
-      assert_equal Tigefa::Configuration::DEFAULTS, TigefaTigefa.configuration({})
+      assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({})
     end
 
     should "load configuration as hash" do
       mock(YAML).safe_load_file(@path) { Hash.new }
       mock($stdout).puts("Configuration file: #{@path}")
-      assert_equal TigefaTigefa::Configuration::DEFAULTS, TigefaTigefa.configuration({})
+      assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({})
     end
 
     should "fire warning with bad config" do
       mock(YAML).safe_load_file(@path) { Array.new }
       mock($stderr).puts(("WARNING: ".rjust(20) + "Error reading configuration. Using defaults (and options).").yellow)
       mock($stderr).puts("Configuration file: (INVALID) #{@path}".yellow)
-      assert_equal TigefaTigefa::Configuration::DEFAULTS, TigefaTigefa.configuration({})
+      assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({})
     end
 
     should "fire warning when user-specified config file isn't there" do
       mock(YAML).safe_load_file(@user_config) { raise SystemCallError, "No such file or directory - #{@user_config}" }
       mock($stderr).puts(("Fatal: ".rjust(20) + "The configuration file '#{@user_config}' could not be found.").red)
       assert_raises LoadError do
-        TigefaTigefa.configuration({'config' => [@user_config]})
+        Tigefa.configuration({'config' => [@user_config]})
       end
     end
   end
@@ -131,7 +131,6 @@ class TestConfiguration < Test::Unit::TestCase
       @paths = {
         :default => File.join(Dir.pwd, '_config.yml'),
         :other   => File.join(Dir.pwd, '_config.live.yml'),
-        :toml    => source_dir('_config.dev.toml'),
         :empty   => ""
       }
     end
@@ -154,20 +153,12 @@ class TestConfiguration < Test::Unit::TestCase
       assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({ "config" => @paths[:empty] })
     end
 
-    should "successfully load a TOML file" do
-      Tigefa.logger.log_level = Tigefa::Stevenson::WARN
-      assert_equal Tigefa::Configuration::DEFAULTS.merge({ "baseurl" => "/you-beautiful-blog-you", "title" => "My magnificent site, wut" }), Tigefa.configuration({ "config" => [@paths[:toml]] })
-      Tigefa.logger.log_level = Tigefa::Stevenson::INFO
-    end
-
     should "load multiple config files" do
       mock(YAML).safe_load_file(@paths[:default]) { Hash.new }
       mock(YAML).safe_load_file(@paths[:other]) { Hash.new }
-      mock(TOML).load_file(@paths[:toml]) { Hash.new }
       mock($stdout).puts("Configuration file: #{@paths[:default]}")
       mock($stdout).puts("Configuration file: #{@paths[:other]}")
-      mock($stdout).puts("Configuration file: #{@paths[:toml]}")
-      assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({ "config" => [@paths[:default], @paths[:other], @paths[:toml]] })
+      assert_equal Tigefa::Configuration::DEFAULTS, Tigefa.configuration({ "config" => [@paths[:default], @paths[:other]] })
     end
 
     should "load multiple config files and last config should win" do
