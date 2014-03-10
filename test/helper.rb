@@ -9,7 +9,7 @@ require 'test/unit'
 require 'ostruct'
 gem 'RedCloth', '>= 4.2.1'
 
-require 'jekyll'
+require 'tigefa'
 
 require 'RedCloth'
 require 'rdiscount'
