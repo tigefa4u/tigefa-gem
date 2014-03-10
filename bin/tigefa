@@ -112,7 +112,7 @@ alias_command :hyde, :doctor
 
 command :docs do |c|
   c.syntax = 'tigefa docs'
-  c.description = "Launch local server with docs for Jekyll v#{Tigefa::VERSION}"
+  c.description = "Launch local server with docs for Tigefa v#{Tigefa::VERSION}"
 
   c.option '-p', '--port [PORT]', 'Port to listen on'
   c.option '-u', '--host [HOST]', 'Host to bind to'
